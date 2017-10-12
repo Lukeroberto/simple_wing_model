@@ -1,0 +1,17 @@
+clear
+
+setpath; % setup the path to all the nested files
+
+% Simulation
+p = params();
+
+z0 = [2;0;0];
+
+
+[t, z, u, indices] = hybrid_simulation(z0,ctrl,p,[0 tf]); % run simulation
+
+% Run the animation
+figure(2)                          % get the coordinates of the points to animate
+speed = .25;                                 % set animation speed
+clf                                         % clear fig
+animate_simple(t,z,p,speed)                 % run animation
