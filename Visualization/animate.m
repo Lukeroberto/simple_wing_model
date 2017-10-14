@@ -1,6 +1,6 @@
 function animate(t,z,p, speed)
     hold on
-%     axis([-.2 .2 -.2 1])
+    axis([-2 2 0 10])
     axis equal % sets the X:Y aspect ratio 1:1; otherwise things will look stretched
     h_ground = plot([-1 1],[0 0],'k-','LineWidth',5);
     h_slider = plot([0 0], [0 10], 'k-', 'LineWidth', 3);

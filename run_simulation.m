@@ -5,8 +5,8 @@ setpath; % setup the path to all the nested files
 % Simulation
 p = params();
 
-z0 = [pi/4;-pi/4;5;0;0;0];
-u = -10;
+z0 = [0;0;3;0;0;0];
+u = 0;
 tf = 10;
 
 [t, z] = simulation(z0,u,p,[0 tf]); % run simulation

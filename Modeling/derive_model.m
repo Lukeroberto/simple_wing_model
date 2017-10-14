@@ -3,7 +3,7 @@ function derive_model()
 name = 'batwing';
 
 %% Define symbolic variables and joint positions
-syms t y dy ddy th1 dth1 ddth1 th2 th2_0 dth2 ddth2 tau F_d F_y l1 l2 k m1 m2 mb I1 I2 rho c_d g real
+syms t y dy ddy th1 dth1 ddth1 th2 th2_0 dth2 ddth2 tau F_d F_y T_c l1 l2 A k m1 m2 mb I1 I2 rho c_d g real
 
 % Grouping 
 q   = [th1; th2; y];
@@ -12,7 +12,8 @@ ddq = [ddth1; ddth2; ddy];
 
 u = tau;
 Fc = F_y;
-p = [l1;l2;m1;m2;mb;I1;I2;k;th2_0;rho;c_d;g];
+Tc = T_c;
+p = [l1;l2;A;m1;m2;mb;I1;I2;k;th2_0;rho;c_d;g];
 
 %% Key Vectors and Derivatives
 ihat = [1; 0; 0];
@@ -68,17 +69,19 @@ Vk = (1/2)*k*(th2-th2_0)^2;
 
 % Define drag force 
 unit_vec = -dr_AB/norm(dr_AB);
-F_d = (1/2)*c_d*rho*norm(dr_AB)^2*unit_vec;
+F_d = (1/2)*c_d*rho*A*norm(dr_AB)^2*unit_vec;
 
 % Generalized forces
 QFd = F2Q(F_d, r_AB);
 QFc = F2Q(Fc*jhat , r_OA);
-QM = M2Q(-tau*khat, -th1*khat);
+
+QM  = M2Q(tau*khat, dth1*khat);
+QMc = M2Q(Tc*khat, dth1*khat);
 
 % Sum contributions
 T = Tb + T1 + T2;
 V = Vb + V1 + V2 + Vk;
-Q = QFd + QFc + QM;
+Q = QFd + QFc + QM + QMc;
 
 % Calculate rcm, the location of the center of mass
 rcm = (mb*r_OA + m1*r_AB_cm + m2*r_BC_cm)/(mb+m1+m2);
@@ -112,7 +115,7 @@ matlabFunction(E,'file',[directory 'energy_' name],'vars',{z p});
 % Write a function to evaluate the A matrix of the system given the current state and parameters
 matlabFunction(A,'file',[directory 'A_' name],'vars',{z p});
 % Write a function to evaluate the b vector of the system given the current state, current control, and parameters
-matlabFunction(b,'file',[directory 'b_' name],'vars',{z u Fc p});
+matlabFunction(b,'file',[directory 'b_' name],'vars',{z u [Fc Tc], p});
 
 matlabFunction(keypoints,'file',[directory 'keypoints_' name],'vars',{z p});
 

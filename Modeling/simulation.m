@@ -23,12 +23,20 @@ function dz = continuous_dynamics(t,z,u,p)
  
     % Contact model
     Fc = contact_force(z,p);
+    Tc = angle_constraint_top(z,p) + angle_constraint_bottom(z,p);
+    u = control_law(t,z,u,p);
     A = A_batwing(z,p);
-    b = b_batwing(z,u,Fc,p);
+    b = b_batwing(z,u,[Fc Tc],p);
 
     x = A\b;
     dz(1:3,1) = z(4:6); % dz = [dth1;dth2;dy;ddth1;ddth2;ddy]
     dz(4:6,1) = x;
+end
+
+function u = control_law(t,z,u,p)
+
+u = u + 60*sin(pi*t);
+   
 end
 
 function Fc = contact_force(z,p)
@@ -36,20 +44,14 @@ function Fc = contact_force(z,p)
     %% Fixed parameters for contact
     K_c = 10000;
     D_c = 0;
-    yC  = 0;
+    yC  = 3;
     
     % Position of body
     y  = z(3);
     dy = z(6);
-
-    % a. Compute constraint C which gives height of foot relative to ground
+    
     C = y - yC;
-
-    % b. Compute constraint rate, \dot{C}
     dC = dy;
-
-    % c. Set Fc based on compliant contact model
-    % d. If foot is above the ground, or Fc<0, set Fc = 0
 
     if C < 0
         Fc = -K_c*C - D_c*dC;
@@ -57,4 +59,46 @@ function Fc = contact_force(z,p)
         Fc = 0;
     end
 
+end
+
+function Tc = angle_constraint_bottom(z,p)
+
+    %% Fixed parameters for contact
+    K_c = 10000;
+    D_c = 10;
+    thC  = -pi/3; % Angle Limit
+    
+    % Position of body
+    th1  = z(1);
+    dth1 = z(4);
+    
+    C = th1 - thC;
+    dC = dth1;
+    
+    if C < 0
+        Tc = -K_c*C - D_c*dC;
+    else
+        Tc = 0;
+    end
+end
+
+function Tc = angle_constraint_top(z,p)
+
+    %% Fixed parameters for contact
+    K_c = 10000;
+    D_c = 10;
+    thC  = pi/3; % Angle Limit
+    
+    % Position of body
+    th1  = z(1);
+    dth1 = z(4);
+    
+    C = th1 - thC;
+    dC = dth1;
+    
+    if C > 0
+        Tc = -K_c*C - D_c*dC;
+    else
+        Tc = 0;
+    end
 end
