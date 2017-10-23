@@ -1,2 +1,2 @@
-# 2.74 Project
-Matlab Simulation of flapping wing for 2.74 project
+# Simple Flapping Wing 
+Matlab Simulation of a simple flapping wing 
